@@ -68,6 +68,8 @@ public class MongeezAutoConfiguration {
     @Import(MongeezDataMongoDependencyConfiguration.class)
     public static class MongeezConfiguration {
 
+        private final static String MONGO_PROPERTIES_DEFAULT_URI = "mongodb://localhost/test';
+
         @Autowired
         private MongeezProperties mongeezProperties = new MongeezProperties();
 
@@ -84,19 +86,19 @@ public class MongeezAutoConfiguration {
         public Mongeez mongeez(MongoProperties mongoProperties, Mongo mongo) {
             String uri = mongoProperties.getUri();
 
-            if (uri != null) {  // ignore another params if spring.data.mongodb.uri declared
+            Mongeez mongeez = new Mongeez();
+            mongeez.setFile(this.resourceLoader.getResource(this.mongeezProperties.getLocation()));
+
+            if (uri != null && !MONGO_PROPERTIES_DEFAULT_URI.equalsIgnoreCase(uri)) {  // ignore another params if spring.data.mongodb.uri declared
                 MongoClientURI mongoUri = new MongoClientURI(uri);
                 MongoClient mongoClient = new MongoClient(mongoUri);
 
-                Mongeez mongeez = new Mongeez();
                 mongeez.setDbName(mongoUri.getDatabase());
-                mongeez.setFile(this.resourceLoader.getResource(this.mongeezProperties.getLocation()));
                 mongeez.setMongo(mongoClient);
 
                 return mongeez;
             }
 
-            Mongeez mongeez = new Mongeez();
             mongeez.setMongo(mongo);
 
             copyMissingProperties(mongoProperties, this.mongeezProperties);
@@ -106,7 +108,6 @@ public class MongeezAutoConfiguration {
                 MongoAuth auth = this.mongeezProperties.createMongoAuth();
                 mongeez.setAuth(auth);
             }
-            mongeez.setFile(this.resourceLoader.getResource(this.mongeezProperties.getLocation()));
             return mongeez;
         }
 
