@@ -15,6 +15,8 @@
 package io.github.hzpz.spring.boot.autoconfigure.mongeez;
 
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.mongeez.Mongeez;
 import org.mongeez.MongeezRunner;
 import org.mongeez.MongoAuth;
@@ -80,6 +82,20 @@ public class MongeezAutoConfiguration {
 
         @Bean(initMethod = "process")
         public Mongeez mongeez(MongoProperties mongoProperties, Mongo mongo) {
+            String uri = mongoProperties.getUri();
+
+            if (uri != null) {  // ignore another params if spring.data.mongodb.uri declared
+                MongoClientURI mongoUri = new MongoClientURI(uri);
+                MongoClient mongoClient = new MongoClient(mongoUri);
+
+                Mongeez mongeez = new Mongeez();
+                mongeez.setDbName(mongoUri.getDatabase());
+                mongeez.setFile(this.resourceLoader.getResource(this.mongeezProperties.getLocation()));
+                mongeez.setMongo(mongoClient);
+
+                return mongeez;
+            }
+
             Mongeez mongeez = new Mongeez();
             mongeez.setMongo(mongo);
 
