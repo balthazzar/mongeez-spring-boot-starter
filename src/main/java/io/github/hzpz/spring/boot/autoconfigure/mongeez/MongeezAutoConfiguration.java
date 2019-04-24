@@ -68,7 +68,7 @@ public class MongeezAutoConfiguration {
     @Import(MongeezDataMongoDependencyConfiguration.class)
     public static class MongeezConfiguration {
 
-        private final static String MONGO_PROPERTIES_DEFAULT_URI = "mongodb://localhost/test';
+        private final static String MONGO_PROPERTIES_DEFAULT_URI = "mongodb://localhost/test";
 
         @Autowired
         private MongeezProperties mongeezProperties = new MongeezProperties();
@@ -104,6 +104,7 @@ public class MongeezAutoConfiguration {
             copyMissingProperties(mongoProperties, this.mongeezProperties);
 
             mongeez.setDbName(this.mongeezProperties.getDatabase());
+
             if (this.mongeezProperties.hasCredentials()) {
                 MongoAuth auth = this.mongeezProperties.createMongoAuth();
                 mongeez.setAuth(auth);
