@@ -93,6 +93,11 @@ public class MongeezAutoConfiguration {
                 MongoClientURI mongoUri = new MongoClientURI(uri);
                 MongoClient mongoClient = new MongoClient(mongoUri);
 
+                if (!StringUtils.isEmpty(mongoUri.getUsername())) {
+                    MongoAuth mongoAuth = new MongoAuth(mongoUri.getUsername(), new String(mongoUri.getPassword()), mongoUri.getDatabase());
+                    mongeez.setAuth(mongoAuth);
+                }
+
                 mongeez.setDbName(mongoUri.getDatabase());
                 mongeez.setMongo(mongoClient);
 
